@@ -16,7 +16,8 @@ const AuthPage = ({ onLoginSuccess }) => {
     const endpoint = isLogin ? '/login' : '/register';
     
     try {
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,6 +29,11 @@ const AuthPage = ({ onLoginSuccess }) => {
 
       if (!response.ok) {
         throw new Error(data.error || 'Something went wrong');
+      }
+
+      // Store JWT token for future authenticated requests
+      if (data.token) {
+        localStorage.setItem('token', data.token);
       }
 
       onLoginSuccess(data); // Pass user data {id, username, avatar} to parent
