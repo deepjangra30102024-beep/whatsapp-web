@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import ContactProfilePanel from './ContactProfilePanel';
 
-const ChatWindow = ({ currentUser, contact, onSendMessage }) => {
+const ChatWindow = ({ currentUser, contacts, contact, onSendMessage, onClearMessages, onDeleteMessage, onRemoveMember, onAddMembers, onBack }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const messages = contact?.messages || [];
 
-  const handleSendMessage = (text) => {
+  const handleSendMessage = (text, attachment) => {
     const newMessage = {
       id: Date.now() + Math.random(),
       text,
@@ -14,7 +17,7 @@ const ChatWindow = ({ currentUser, contact, onSendMessage }) => {
       sender: currentUser.id
     };
     
-    onSendMessage(contact.id, newMessage);
+    onSendMessage(contact.id, newMessage, attachment);
   };
 
   if (!contact) {
@@ -34,11 +37,30 @@ const ChatWindow = ({ currentUser, contact, onSendMessage }) => {
     );
   }
 
+  const filteredMessages = messages.filter(msg => 
+    msg.text?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="chat-window">
-      <ChatHeader contact={contact} />
-      <MessageList messages={messages} currentUser={currentUser} />
-      <MessageInput onSendMessage={handleSendMessage} />
+    <div style={{ display: 'flex', flex: 1, height: '100%', overflow: 'hidden' }}>
+      <div className="chat-window" style={{ flex: 1, minWidth: 0 }}>
+        <ChatHeader 
+          contact={contact}
+          currentUser={currentUser}
+          contacts={contacts}
+          onSearch={(query) => setSearchQuery(query)} 
+          onClearMessages={onClearMessages}
+          onRemoveMember={onRemoveMember}
+          onAddMembers={onAddMembers}
+          onBack={onBack}
+          onToggleContactInfo={() => setShowContactInfo(!showContactInfo)}
+        />
+        <MessageList messages={filteredMessages} currentUser={currentUser} onDeleteMessage={onDeleteMessage} />
+        <MessageInput onSendMessage={handleSendMessage} />
+      </div>
+      {showContactInfo && (
+        <ContactProfilePanel contact={contact} onClose={() => setShowContactInfo(false)} />
+      )}
     </div>
   );
 };

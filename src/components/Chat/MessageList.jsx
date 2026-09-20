@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 
-const MessageList = ({ messages, currentUser }) => {
+const MessageList = ({ messages, currentUser, onDeleteMessage }) => {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -15,6 +15,7 @@ const MessageList = ({ messages, currentUser }) => {
           key={msg.id} 
           message={msg} 
           isSent={msg.sender === currentUser.id} 
+          onDelete={() => onDeleteMessage && onDeleteMessage(msg.id)}
         />
       ))}
       <div ref={bottomRef} />
